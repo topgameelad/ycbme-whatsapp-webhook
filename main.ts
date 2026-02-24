@@ -1,7 +1,6 @@
-import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { sendMessage } from "jsr:@supergreen/client";
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method !== "POST") {
     return new Response("Webhook receiver is running!", { status: 200 });
   }
