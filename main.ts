@@ -10,12 +10,9 @@ serve(async (req) => {
     const payload = await req.json();
     console.log("Received booking:", payload);
 
-    // Try to find the phone number in the payload
-    // YouCanBook.me usually sends phone numbers in a field like 'PHONE', 'Mobile', or 'phone'
     let customerPhone = payload.PHONE || payload.phone || payload.mobile || payload.Mobile;
 
     if (!customerPhone && payload.answers) {
-       // Search answers array if exists
        for (const answer of payload.answers) {
           if (answer.type === 'phone' || answer.code === 'PHONE') {
              customerPhone = answer.value;
@@ -28,8 +25,7 @@ serve(async (req) => {
       return new Response("No phone number found in booking data", { status: 400 });
     }
 
-    // Clean up phone number (remove +, spaces, etc)
-    const cleanPhone = customerPhone.replace(/\\D/g, "");
+    const cleanPhone = customerPhone.replace(/\D/g, "");
 
     const token = Deno.env.get("SUPERGREEN_TOKEN");
     const myPhone = Deno.env.get("SUPERGREEN_PHONE");
@@ -42,9 +38,10 @@ serve(async (req) => {
 
     await sendMessage({
       token: token,
-      phone: myPhone,
-      chatId: `${cleanPhone}@s.whatsapp.net`,
-      text: messageText,
+      fromNumber: myPhone,
+      toNumber: cleanPhone,
+      message: messageText,
+      linkPreview: false,
     });
 
     return new Response("Success", { status: 200 });
